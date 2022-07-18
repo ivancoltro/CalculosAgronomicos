@@ -1,0 +1,13 @@
+.hr3 {
+  border: 0;
+  height: 2px;
+  background-image: linear-gradient(to right, transparent, #CCC, transparent);  
+}
+
+.esconde{
+	display: none;
+}
+
+.mostra{
+	display: block;
+}
