@@ -155,7 +155,7 @@ blockquote {
 
 @media (max-width: 450px){
 	h2{
-		font-size: 2.5rem !important;
+		font-size: 1.5rem !important;
 	}
 	h5{
 		font-size: 2.5rem;
@@ -164,11 +164,11 @@ blockquote {
 		font-size: 1.3rem;
 	}
 	p{
-		font-size: 1.3rem;
+		font-size: 1rem !important;
 		padding-top:0.3rem
 	}
 	#valores p{
-		font-size: 1rem !important;
+		font-size: 0.7rem !important;
 	}
 	input{
 		font-size: 1rem;
@@ -176,6 +176,7 @@ blockquote {
 	nav#tmNav{
 		height: 5%;
 		padding-top: 0.2rem;
+		font-size: 1rem;
 	}
 	
 }
