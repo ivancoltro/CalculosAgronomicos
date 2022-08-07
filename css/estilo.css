@@ -11,3 +11,7 @@
 .mostra{
 	display: block;
 }
+
+.erro{
+	border-color: red;
+}
