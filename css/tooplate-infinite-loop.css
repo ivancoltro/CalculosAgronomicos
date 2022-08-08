@@ -153,6 +153,10 @@ blockquote {
   position: relative;
 }
 
+.label{
+	padding: 2% 10% 0 0;
+}
+
 @media (max-width: 450px){
 	h2{
 		font-size: 1.5rem !important;
@@ -172,15 +176,27 @@ blockquote {
 	}
 	input{
 		font-size: 1rem;
+		width: 105% !important;
+	}
+	input.btn{
+		width: 50% !important;
 	}
 	nav#tmNav{
 		height: 5%;
 		padding-top: 0.2rem;
 		font-size: 0.7rem !important;
 	}
+	nav#tmNav.scroll{
+		height: 6%;
+		padding-top: 0rem;
+	}
 	div#fontes{
 		padding-top: 2rem;
 	}
+	.peq{
+		width: 10% !important;
+	}
+	
 	
 }
 
