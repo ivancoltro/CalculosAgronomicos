@@ -129,16 +129,23 @@ https://www.tooplate.com/view/2117-infinite-loop
 			<div class="text-center col-3">              
                <input id="oxido_mg" name="oxido_mg" type="number" step="0.01" placeholder="Oxido de Magnesio %" class="tm-input" required onclick="$('#'+this.id).removeClass('erro')"/>
             </div>
-			<div class="text-center col-3">
-				<input type="hidden"/>
-			</div>               
 			
+			<div class="text-center col-6" id="tipo_calc"/>			
+				
+					<input type="radio" id="calcit" name="tipo" value="cal" class="peq">
+					<label for="calcit" class="label">Calcítico</label>
+				
+					<input type="radio" id="dolom" name="tipo" value="dol" class="peq" checked>
+					<label for="dolom">Dolomítico</label>
+					
+			</div>
+				
             <div class="col-sm-12 col-md-6">
-				<input type="button" class="btn tm-btn-submit" value="Calcular" onclick="calcular(this);" id="btn">
+				<input type="button" class="btn tm-btn-submit" value="Calcular" onclick="calcular(this, null);" id="btn">
 			</div>
 			
 			
-			<div id="resultado" class="text-center col-12">				
+			<div id="resultado" class=" col-12">				
 			</div>
            
         </div><!-- row ending -->
@@ -171,7 +178,9 @@ https://www.tooplate.com/view/2117-infinite-loop
 
 		if ($(window).width() <= 450) {  
 			$('div.col-3').removeClass('col-3');
-			//$('div.col-3').removeClass('col-12');
+			
+			$('#tipo_calc').removeClass('col-6');
+			$('#tipo_calc').addClass('col-9');
 		}  
 		   
 		//if ($(window).width() >= 768) {  
@@ -184,6 +193,7 @@ https://www.tooplate.com/view/2117-infinite-loop
 		//	e.preventDefault();  
 			
 			var erros = 0; 
+			var sat_atual =0.0;
 			
 			var ca = $('#ca').val().replace(",","."); //calcio desejado
 			if(ca < 50 || ca > 65){
@@ -238,19 +248,26 @@ https://www.tooplate.com/view/2117-infinite-loop
 			if(ox_ca <= 0){
 				$('#oxido_ca').addClass('erro');
 				alert("Valor inválido. Valor do Cálcio presente no calcário será considerado valor médio");
-				ox_ca = 45;
+				ox_ca = 35;				
 			}else{$('#oxido_ca').removeClass('erro');}
 			
 			var ox_mg =$('#oxido_mg').val().replace(",",".");
 			if(ox_mg <= 0){
 				$('#oxido_mg').addClass('erro');
 				alert("Valor inválido. Valor de Magnésio presente no calcário será considerado valor médio");
-				ox_mg=5;				
-			}else{$('#oxido_mg').removeClass('erro');}			
+				if($('#dolom').is(':checked'))
+					ox_mg = 5;
+				if($('#calcit').is(':checked'))
+					ox_mg = 25;				
+			}else{
+				$('#oxido_mg').removeClass('erro');
+				$('#dolom').checked=false;
+				
+			}			
 			if(erros>0){
 				return;
 			}
-			
+			alert(ox_mg);
 			
 			
 			//calcula o nivel ideal necessario para atingir valor baseado na informação do usuario Cmol/dm³
@@ -258,6 +275,8 @@ https://www.tooplate.com/view/2117-infinite-loop
 			//alert("faltam "+ca_ideal+" cmol de Ca");
 			mg_ideal = ((mg/100)*ctc) - mg_a;
 			k_ideal = ((k/100)*ctc) - k_a;
+			
+			sat_atual = ((ca_a*100)/ctc) + ((mg_a*100)/ctc) + ((k_a*100)/ctc);
 			
 			// 1 Cmolc de calcio equivale a 200,4mg/dm³ de Calcio ( Ca )
 			ca_ideal = ca_ideal*200.4; //mg/dm³
@@ -300,6 +319,7 @@ https://www.tooplate.com/view/2117-infinite-loop
 				potassio = 0;
 			}
 			var porcentagem_mg = 0;
+			var porcentagem_mg_dolomit = 0; //compara o nivel de magnesio com um calcario dolomitico
 			var cmol_mg = 0;
 			var tipo = "";
 			var calcario = 0;
@@ -308,76 +328,90 @@ https://www.tooplate.com/view/2117-infinite-loop
 			//transforma o mg e ca em porcentagem
 			
 			//transforma a quantidade de calcario em % magnesio
-			porcentagem_mg = magnesio * (ox_mg / 100); //mgo total aplicado
-			porcentagem_mg = (porcentagem_mg*4.9628);  //1 g MgO em cmolc = 1 / 0,2015 g = 4,9628
-			porcentagem_mg = (porcentagem_mg/1000)/2;  //converte em cmol/dm³= x/1000 e reorna dos hectares = x/2
-			//porcentagem_mg = (porcentagem_mg*0.02481);// calculo direto --- converte oxido de magnesio (MgO) em magnesio(Mg) cmolc/dm3 = A x 0,02481
-			porcentagem_mg = (porcentagem_mg + parseFloat(mg_a)) * 100; // soma com o Mg atual e calcula porcentagem
-			porcentagem_mg = (porcentagem_mg/ctc).toFixed(2)
+			porcentagem_mg = calcitico(magnesio, ox_mg, mg_a, ctc);			
+			porcentagem_mg_dolomit = calcitico(calcio, ox_mg, mg_a, ctc);
+			
+			//	porcentagem_mg = magnesio * (ox_mg / 100); //mgo total aplicado
+			//	porcentagem_mg = (porcentagem_mg*4.9628);  //1 g MgO em cmolc = 1 / 0,2015 g = 4,9628
+			//	porcentagem_mg = (porcentagem_mg/1000)/2;  //converte em cmol/dm³= x/1000 e reorna dos hectares = x/2
+				//porcentagem_mg = (porcentagem_mg*0.02481);// calculo direto --- converte oxido de magnesio (MgO) em magnesio(Mg) cmolc/dm3 = A x 0,02481
+			//	porcentagem_mg = (porcentagem_mg + parseFloat(mg_a)) * 100; // soma com o Mg atual e calcula porcentagem
+			//	porcentagem_mg = (porcentagem_mg/ctc).toFixed(2)
 			
 			//transforma a quantidade de calcario em % de calcio
-			porcentagem_ca = calcio * (ox_ca / 100);// total de oxido de calcio adicionado
-			porcentagem_ca = porcentagem_ca / 1.4; // transforma oxido de calcio (CaO) em Cálcio (Ca)
-			porcentagem_ca = porcentagem_ca / 2;  // transforma kg/ha de Ca em mg/dm³ de Ca
-			porcentagem_ca = porcentagem_ca / 200.4; //Transformar mg/dm³ em cmolc/dm³
-			porcentagem_ca = porcentagem_ca + ca_a * 1; //soma os cmolc/dm³ da analise com o adicionado pelo calcario
-			porcentagem_ca = ((porcentagem_ca*100)/ctc).toFixed(2); //calcula a porcentagem em relação a CTC
+			porcentagem_ca = dolomitico(calcio, ox_ca, ca_a, ctc);
+			//		porcentagem_ca = calcio * (ox_ca / 100);// total de oxido de calcio adicionado
+			//		porcentagem_ca = porcentagem_ca / 1.4; // transforma oxido de calcio (CaO) em Cálcio (Ca)
+			//		porcentagem_ca = porcentagem_ca / 2;  // transforma kg/ha de Ca em mg/dm³ de Ca
+			//		porcentagem_ca = porcentagem_ca / 200.4; //Transformar mg/dm³ em cmolc/dm³
+			//		porcentagem_ca = porcentagem_ca + ca_a * 1; //soma os cmolc/dm³ da analise com o adicionado pelo calcario
+			//		porcentagem_ca = ((porcentagem_ca*100)/ctc).toFixed(2); //calcula a porcentagem em relação a CTC
 			
-					
+			
 			//if((calcio >= magnesio && ox_mg <=5) || porcentagem_ca < 65 && porcentagem_mg <=20){
 			if(ox_mg <= 5 && mg_ideal>0 || ox_ca < 1){	
 					tipo="Dolomítico";
 					calcario = calcio;
-					//porcentagem_ca = ca;
-					porcentagem_mg = calcario * (ox_mg / 100); //mgo total aplicado
-					porcentagem_mg = (porcentagem_mg*4.9628);  //1 g MgO em cmolc = 1 / 0,2015 g = 4,9628
-					porcentagem_mg = (porcentagem_mg/1000)/2;  //converte em cmol/dm³= x/1000 e reorna dos hectares = x/2
-					//porcentagem_mg = (porcentagem_mg*0.02481);// calculo direto --- converte oxido de magnesio (MgO) em magnesio(Mg) cmolc/dm3 = A x 0,02481
-					porcentagem_mg = (porcentagem_mg + parseFloat(mg_a)) * 100; // soma com o Mg atual e calcula porcentagem
-					porcentagem_mg = (porcentagem_mg/ctc).toFixed(2)
+					porcentagem_mg = calcitico(calcario, ox_mg, mg_a, ctc);
 			
 			}else{
 				tipo="Calcítico";
 				calcario = magnesio;
-				//porcentagem_mg = mg;
-				porcentagem_ca = calcario * (ox_ca / 100);// total de oxido de calcio adicionado
-				porcentagem_ca = porcentagem_ca / 1.4; // transforma oxido de calcio (CaO) em Cálcio (Ca)
-				porcentagem_ca = porcentagem_ca / 2;  // transforma kg/ha de Ca em mg/dm³ de Ca
-				porcentagem_ca = porcentagem_ca / 200.4; //Transformar mg/dm³ em cmolc/dm³
-				porcentagem_ca = porcentagem_ca + ca_a * 1; //soma os cmolc/dm³ da analise com o adicionado pelo calcario
-				porcentagem_ca = ((porcentagem_ca*100)/ctc).toFixed(2); //calcula a porcentagem em relação a CTC
+				porcentagem_ca = dolomitico(calcario, ox_ca, ca_a, ctc);
 			}
-			
+				
 			var saturacao = 0;
 			var sat_alc = 0;
 			saturacao = parseInt(ca) +  parseInt(mg) +  parseInt(k); 
 			sat_alc = parseInt(porcentagem_ca)+parseInt(porcentagem_mg)+parseInt(k);
 			
 			var info="";
+			var erro_calcio =""; 
 			if(mg_ideal<=0){
-				info ='<div class="text-center col-12"> <h5 class="mb-12" id="txt_mg" style="color: red;"> Saturação por Magnésio pretendida '+mg+'% é menor que a saturação atual '+porcentagem_mg+'% .</h5></div>';
+				info ='<div class=" col-12"> <h5 class="mb-12" id="txt_mg" style="color: red;"> Saturação por Magnésio pretendida '+mg+'% é menor que a saturação atual '+porcentagem_mg+'% .</h5></div>';
+			}
+			if(porcentagem_ca >65){
+				erro_calcio = '<div class=" col-12"> <h5 class="mb-12" style="color: red;">Saturação por Cálcio muito alta = '+porcentagem_ca+'%.  </h5></div>';
 			}
 				
-			document.getElementById('resultado').innerHTML=	'<div class="text-center col-12">	<hr class="hr3">'+
+			document.getElementById('resultado').innerHTML=	'<div class=" col-12">	<hr class="hr3">'+
 					'<h5 class="tm-section-title mb-3">Resultado processado</h5> </div>'+
 					
-				'<div class="text-center col-12"> <h5 class="mb-12">Correção por calcio '+calcio+'kg/ha <> Correção por magnésio '+magnesio+'kg/ha  </h5></div>'+
-				'<div class="text-center col-12"> <h5 class="mb-12">Recomendação de '+calcario+' Kg/ha de calcario '+tipo+'.  </h5></div>'+
+				'<div class=" col-12"> <h5 class="mb-12">Correção por calcio '+calcio+'kg/ha <> Correção por magnésio '+magnesio+'kg/ha  </h5></div>'+
+				'<div class=" col-12"> <h5 class="mb-12">Recomendação de '+calcario+' Kg/ha de calcario '+tipo+'.  </h5></div>'+
 				
-				'<div class="text-center col-12"> <h5 class="mb-12"> Saturação  pretendida  Ca + Mg + K = '+saturacao+'%.  </h5></div>'+
-				'<div class="text-center col-12"> <h5 class="mb-12">Saturação alcançada após correção = '+sat_alc+'%.  </h5></div>'+
+				'<div class=" col-12"> <h5 class="mb-12"> Saturação  pretendida  Ca + Mg + K = '+saturacao+'%.  Atual = '+sat_atual.toFixed(2)+'%.</h5></div>'+
+				'<div class=" col-12"> <h5 class="mb-12">Saturação alcançada após correção = '+sat_alc+'%.  </h5></div>'+
 				
-				'<div class="text-center col-12"> <h5 class="mb-12" id="txt_mg"> Saturação futura: Cálcio '+porcentagem_ca+'%; Magnésio '+porcentagem_mg+'% </h5></div>'+
+				'<div class=" col-12"> <h5 class="mb-12" id="txt_mg"> Saturação futura: Cálcio '+porcentagem_ca+'%; Magnésio '+porcentagem_mg+'% </h5></div>'+
+				erro_calcio+
 				info+
-				'<div class="text-center col-12"> <h5 class="mb-12" id="txt_mg"> Potássio: '+potassio+'Kg/ha de K2O ou '+((potassio*100)/60).toFixed(2)+' de cloreto de potássio. </h5></div>';
+				'<div class=" col-12"> <h5 class="mb-12" id="txt_mg"> Potássio: '+potassio+'Kg/ha de K2O ou '+((potassio*100)/60).toFixed(2)+'Kg/ha de cloreto de potássio. </h5></div>';
 				
 				
 			//$('#txt_ca').ad
 		//});
 	}
 	
-		
-		
+	function dolomitico(calcario, ox_ca, ca_a, ctc){
+		porcentagem_ca = calcario * (ox_ca / 100);// total de oxido de calcio adicionado
+		porcentagem_ca = porcentagem_ca / 1.4; // transforma oxido de calcio (CaO) em Cálcio (Ca)
+		porcentagem_ca = porcentagem_ca / 2;  // transforma kg/ha de Ca em mg/dm³ de Ca
+		porcentagem_ca = porcentagem_ca / 200.4; //Transformar mg/dm³ em cmolc/dm³
+		porcentagem_ca = porcentagem_ca + ca_a * 1; //soma os cmolc/dm³ da analise com o adicionado pelo calcario
+		porcentagem_ca = ((porcentagem_ca*100)/ctc).toFixed(2); //calcula a porcentagem em relação a CTC
+		return porcentagem_ca;
+	}
+	
+	function calcitico(calcario, ox_mg, mg_a, ctc){
+		porcentagem_mg = calcario * (ox_mg / 100); //mgo total aplicado
+		porcentagem_mg = (porcentagem_mg*4.9628);  //1 g MgO em cmolc = 1 / 0,2015 g = 4,9628
+		porcentagem_mg = (porcentagem_mg/1000)/2;  //converte em cmol/dm³= x/1000 e reorna dos hectares = x/2
+		//porcentagem_mg = (porcentagem_mg*0.02481);// calculo direto --- converte oxido de magnesio (MgO) em magnesio(Mg) cmolc/dm3 = A x 0,02481
+		porcentagem_mg = (porcentagem_mg + parseFloat(mg_a)) * 100; // soma com o Mg atual e calcula porcentagem
+		porcentagem_mg = (porcentagem_mg/ctc).toFixed(2);
+		return porcentagem_mg;
+	}
 	
       function getOffSet(){
         var _offset = 450;
