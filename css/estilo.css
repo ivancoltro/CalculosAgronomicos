@@ -15,3 +15,24 @@
 .erro{
 	border-color: red;
 }
+
+.msg_erro{
+	color: red;
+    font-weight: bold;
+}
+
+
+select option{
+	background-color: steelblue;
+}
+
+#adubacao{
+	font-size: 1.3em;
+}
+#label_cultura{
+	max-width:20%;
+}
+
+.espaco_abaixo{
+	padding: 3% 0 3% 0;
+}
