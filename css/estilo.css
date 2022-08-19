@@ -36,3 +36,19 @@ select option{
 .espaco_abaixo{
 	padding: 3% 0 3% 0;
 }
+
+.foto{
+	width: 3%; 
+	margin-left: 3%;
+}
+
+@media (max-width: 450px){
+	.foto{
+		width: 10% !important;
+		margin-left: 3% !important;		
+	}
+	
+	
+	
+	
+}
