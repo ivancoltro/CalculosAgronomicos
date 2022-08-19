@@ -200,16 +200,20 @@ https://www.tooplate.com/view/2117-infinite-loop
 					<p id="msg_formulacao" class="esconde msg_erro">Um valor deve ser informado.</p>
 				</div>
 				
-			<div class="text-center col-9 espaco_abaixo" id="tipo_calc">			
-				<label class="text-center"> Método para cálculo: </label><br/>
+			<div class="text-center col-10 espaco_abaixo" id="tipo_calc">			
+				<label class="text-center"> Método para cálculo: </label><a href="dados.html"><img id="quest" class="foto" src="img/quest.png"/></a><br/>
+				
 				<input type="radio" id="extracao" name="metodo" value="extracao" class="peq" checked>
 				<label for="extracao" class="label">Extração</label>
 				
 				<input type="radio" id="exportacao" name="metodo" value="exportacao" class="peq" >
-				<label for="exportacao">Exportação</label>
+				<label for="exportacao" class="label">Exportação</label>
 					
-			</div>
+				<input type="checkbox" id="cobertura" name="cobertura" value="cobertura" class="peq">
+				<label for="cobertura" >Remover coberturas </label>
 				
+			</div>
+			
 				
 				<div class="col-sm-12 col-md-6">
 					<input type="button" class="btn tm-btn-submit" value="Calcular" onclick="adubar();" id="btn_adubar">
@@ -252,14 +256,19 @@ https://www.tooplate.com/view/2117-infinite-loop
 	$(document).ready(function(){
 
 		if ($(window).width() <= 450) { 
-			$('div.col-3').addClass('col-9'); 
-			$('div.col-3').removeClass('col-3');
+			$('div.col-9').removeClass('col-9').addClass('col-12');
+			//$('div.col-9').addClass('col-12'); 
+			//$('div.col-3').addClass('col-9'); 
+			$('div.col-3').removeClass('col-3').addClass('col-9');
 			
 			
-			$('#tipo_calc').removeClass('col-6');
-			$('#tipo_calc').addClass('col-9');
+			$('#tipo_calc').removeClass('col-6').addClass('col-12');
+			//$('#tipo_calc').addClass('col-12');
 		}  
-		   
+		
+		if ($(window).width() > 450) { 
+			$('#quest').css('width: 5%');
+		}
 		//if ($(window).width() >= 768) {  
 		//$("#masthead").addClass("uk-position-center");
 		//}        
